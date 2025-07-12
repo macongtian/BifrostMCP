@@ -1,6 +1,7 @@
 import { toolsDescriptions } from './tools';
-const onlyUriTools = ['get_semantic_tokens', 'get_document_symbols', 'get_code_lens', 'get_workspace_symbols'];
 const noUriTools = ['get_workspace_symbols'];
+const positionTools = ['go_to_definition'];
+const rangeTools = ['read_content'];
 
 export const webviewHtml = `
     <!DOCTYPE html>
@@ -103,15 +104,13 @@ export const webviewHtml = `
                 </div>
                 ` : ''}
                 <div class="tool-inputs">
-                    ${!onlyUriTools.includes(tool.name) ? `
+                    ${positionTools.includes(tool.name) ? `
                         <input type="number" id="line-${tool.name}" placeholder="Line number" style="width: 100px">
                         <input type="number" id="char-${tool.name}" placeholder="Character" style="width: 100px">
                     ` : ''}
-                    ${tool.name === 'get_completions' ? `
-                        <input type="text" id="trigger-${tool.name}" placeholder="Trigger character" style="width: 50px" maxlength="1">
-                    ` : ''}
-                    ${tool.name === 'get_rename_locations' || tool.name === 'rename' ? `
-                        <input type="text" id="newname-${tool.name}" placeholder="New name" style="width: 150px">
+                    ${rangeTools.includes(tool.name) ? `
+                        <input type="number" id="startLine-${tool.name}" placeholder="Start line" style="width: 100px">
+                        <input type="number" id="endLine-${tool.name}" placeholder="End line" style="width: 100px">
                     ` : ''}
                     ${tool.name === 'get_workspace_symbols' ? `
                         <input type="text" id="query-${tool.name}" placeholder="Search symbols..." style="width: 200px">
@@ -225,7 +224,7 @@ export const webviewHtml = `
                     params.textDocument = { uri };
                 }
 
-                if (!${JSON.stringify(onlyUriTools)}.includes(toolName)) {
+                if (${JSON.stringify(positionTools)}.includes(toolName)) {
                     const line = document.getElementById('line-' + toolName)?.value;
                     const char = document.getElementById('char-' + toolName)?.value;
                     params.position = {
@@ -234,18 +233,13 @@ export const webviewHtml = `
                     };
                 }
 
-                if (toolName === 'get_completions') {
-                    const trigger = document.getElementById('trigger-' + toolName)?.value;
-                    if (trigger) {
-                        params.triggerCharacter = trigger;
-                    }
-                }
-
-                if (toolName === 'get_rename_locations' || toolName === 'rename') {
-                    const newName = document.getElementById('newname-' + toolName)?.value;
-                    if (newName) {
-                        params.newName = newName;
-                    }
+                if (${JSON.stringify(rangeTools)}.includes(toolName)) {
+                    const startLine = document.getElementById('startLine-' + toolName)?.value;
+                    const endLine = document.getElementById('endLine-' + toolName)?.value;
+                    params.range = {
+                        startLine: parseInt(startLine),
+                        endLine: parseInt(endLine)
+                    };
                 }
 
                 if (toolName === 'get_workspace_symbols') {

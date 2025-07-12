@@ -21,7 +21,9 @@ export function createDebugPanel(context: vscode.ExtensionContext) {
     // Get workspace files for autocomplete
     async function getWorkspaceFiles(): Promise<string[]> {
         const workspaceFolders = vscode.workspace.workspaceFolders;
-        if (!workspaceFolders) return [];
+        if (!workspaceFolders) {
+            return [];
+        }
 
         const files: string[] = [];
         for (const folder of workspaceFolders) {
@@ -81,24 +83,6 @@ export function createDebugPanel(context: vscode.ExtensionContext) {
                     try {
                         const { name, arguments: args } = request.params;
                         let result: any;
-                        
-                        // Verify file exists for commands that require it
-                        if (args && typeof args === 'object' && 'textDocument' in args && 
-                            args.textDocument && typeof args.textDocument === 'object' && 
-                            'uri' in args.textDocument && typeof args.textDocument.uri === 'string') {
-                            const uri = vscode.Uri.parse(args.textDocument.uri);
-                            try {
-                                await vscode.workspace.fs.stat(uri);
-                            } catch (error) {
-                                return {
-                                    content: [{ 
-                                        type: "text", 
-                                        text: `Error: File not found - ${uri.fsPath}` 
-                                    }],
-                                    isError: true
-                                };
-                            }
-                        }
                         
                         result = await runTool(name, args);
 

@@ -128,27 +128,8 @@ export async function activate(context: vscode.ExtensionContext) {
         mcpServer!.setRequestHandler(CallToolRequestSchema, async (request) => {
             try {
                 const { name, arguments: args } = request.params;
-                let result: any;
                 
-                // Verify file exists for commands that require it
-                if (args && typeof args === 'object' && 'textDocument' in args && 
-                    args.textDocument && typeof args.textDocument === 'object' && 
-                    'uri' in args.textDocument && typeof args.textDocument.uri === 'string') {
-                    const uri = vscode.Uri.parse(args.textDocument.uri);
-                    try {
-                        await vscode.workspace.fs.stat(uri);
-                    } catch (error) {
-                        return {
-                            content: [{ 
-                                type: "text", 
-                                text: `Error: File not found - ${uri.fsPath}` 
-                            }],
-                            isError: true
-                        };
-                    }
-                }
-                
-                result = await runTool(name, args);
+                const result = await runTool(name, args);
 
                 return { content: [{ type: "text", text: JSON.stringify(result) }] };
             } catch (error) {

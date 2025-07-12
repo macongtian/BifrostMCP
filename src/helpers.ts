@@ -64,7 +64,7 @@ export function createVscodePosition(line: number, character: number): vscode.Po
         return undefined;
     }
     return new vscode.Position(
-        Math.max(line, 0),
+        Math.max(line-1, 0),
         Math.max(character, 0)
     );
 }
