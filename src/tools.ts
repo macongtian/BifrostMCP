@@ -96,6 +96,35 @@ export const mcpTools = [
             },
             required: ["query"]
         }
+    },
+    {
+        name: "read_file",
+        description: "Reads the contents of a file. This is useful for getting the contents of a file to use in other tools.",
+        inputSchema: {
+            type: "object",
+            properties: {
+                target_file: {
+                    type: "string",
+                    description: "The file path to read, can be relative to the current file or absolute or uri format"
+                },
+                should_read_entire_file: {
+                    type: "boolean",
+                    description: "Optional, default is false. If set to true, read the entire file, but usually only for small files or files explicitly specified by the user.",
+                    required: false
+                },
+                start_line_one_indexed: {
+                    type: "integer",
+                    description: "Required when should_read_entire_file is false. Start reading from which line (line number starts from 1).",
+                    required: false
+                },
+                end_line_one_indexed_inclusive: {
+                    type: "integer",
+                    description: "Required when should_read_entire_file is false. Read to which line (inclusive of this line).",
+                    required: false
+                }
+            },
+            required: ["target_file"]
+        }
     }
 ];
 
@@ -111,5 +140,9 @@ export const toolsDescriptions = [
     {
         name: "get_workspace_symbols",
         description: "Searches for symbols across the entire workspace"
+    },
+    {
+        name: "read_file",
+        description: "Reads the contents of a file. This is useful for getting the contents of a file to use in other tools."
     }
 ];

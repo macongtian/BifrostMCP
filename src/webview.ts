@@ -115,6 +115,16 @@ export const webviewHtml = `
                     ${tool.name === 'get_workspace_symbols' ? `
                         <input type="text" id="query-${tool.name}" placeholder="Search symbols..." style="width: 200px">
                     ` : ''}
+                    ${tool.name === 'read_file' ? `
+                        <div style="margin: 5px 0;">
+                            <input type="checkbox" id="should_read_entire_file-${tool.name}" onchange="toggleReadFileRange('${tool.name}')">
+                            <label for="should_read_entire_file-${tool.name}">读取整个文件</label>
+                        </div>
+                        <div id="read-file-range-${tool.name}">
+                            <input type="number" id="start_line_one_indexed-${tool.name}" placeholder="起始行" style="width: 100px">
+                            <input type="number" id="end_line_one_indexed_inclusive-${tool.name}" placeholder="结束行" style="width: 100px">
+                        </div>
+                    ` : ''}
                 </div>
                 <button onclick="executeTool('${tool.name}')">Execute</button>
                 <pre id="result-${tool.name}">Results will appear here...</pre>
@@ -123,6 +133,16 @@ export const webviewHtml = `
         <script>
             const vscode = acquireVsCodeApi();
             let workspaceFiles = [];
+
+            function toggleReadFileRange(toolName) {
+                const checkbox = document.getElementById('should_read_entire_file-' + toolName);
+                const rangeContainer = document.getElementById('read-file-range-' + toolName);
+                if (checkbox.checked) {
+                    rangeContainer.style.display = 'none';
+                } else {
+                    rangeContainer.style.display = 'block';
+                }
+            }
             
             // File autocomplete functionality
             function setupFileAutocomplete(toolName) {
@@ -204,6 +224,9 @@ export const webviewHtml = `
             tools = ${JSON.stringify(toolsDescriptions)};
             tools.forEach(tool => {
                 setupFileAutocomplete(tool.name);
+                if (tool.name === 'read_file') {
+                    toggleReadFileRange(tool.name);
+                }
             });
 
             function useCurrentFile(toolName) {
@@ -219,7 +242,21 @@ export const webviewHtml = `
             function executeTool(toolName) {
                 const params = {};
                 
-                if (!${JSON.stringify(noUriTools)}.includes(toolName)) {
+                if (toolName === 'read_file') {
+                    params.target_file = document.getElementById('uri-' + toolName).value;
+                    const shouldReadEntireFile = document.getElementById('should_read_entire_file-' + toolName).checked;
+                    params.should_read_entire_file = shouldReadEntireFile;
+                    if (!shouldReadEntireFile) {
+                        const startLine = document.getElementById('start_line_one_indexed-' + toolName)?.value;
+                        const endLine = document.getElementById('end_line_one_indexed_inclusive-' + toolName)?.value;
+                        if (startLine) {
+                            params.start_line_one_indexed = parseInt(startLine);
+                        }
+                        if (endLine) {
+                            params.end_line_one_indexed_inclusive = parseInt(endLine);
+                        }
+                    }
+                } else if (!${JSON.stringify(noUriTools)}.includes(toolName)) {
                     const uri = document.getElementById('uri-' + toolName).value;
                     params.textDocument = { uri };
                 }

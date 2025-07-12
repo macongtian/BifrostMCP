@@ -1,3 +1,4 @@
+import path from 'path';
 import * as vscode from 'vscode';
 export interface DocumentSymbolResult {
     name: string;
@@ -67,6 +68,26 @@ export function createVscodePosition(line: number, character: number): vscode.Po
         Math.max(line-1, 0),
         Math.max(character, 0)
     );
+}
+
+export async function createVscodeUri(filePath: string): Promise<vscode.Uri> {
+    if (path.isAbsolute(filePath)) {
+        return vscode.Uri.file(filePath);
+    } else {
+        try {
+            return vscode.Uri.parse(filePath, true);
+        } catch (error) {
+        }
+    }
+    if (vscode.workspace.workspaceFolders) {
+        for (const folder of vscode.workspace.workspaceFolders) {
+            const fullPath = vscode.Uri.joinPath(folder.uri, filePath);
+            if (await vscode.workspace.fs.stat(fullPath).then(() => true, () => false)) {
+                return fullPath;
+            }
+        }
+    }
+    throw new Error(`Invalid file path: ${filePath}`);
 }
 
 export async function asyncMap<T, R>(array: T[], asyncCallback: (item: T) => Promise<R>): Promise<R[]> {
