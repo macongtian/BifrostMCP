@@ -15,6 +15,12 @@ export interface DocumentSymbolResult {
     children: DocumentSymbolResult[];
 }
 
+export interface RichPreview {
+    snippet_content: string;
+    total_lines_in_file: number;
+    line: number;
+}
+
 export function convertSymbol(symbol: vscode.DocumentSymbol): DocumentSymbolResult {
     return {
         name: symbol.name,
@@ -55,6 +61,27 @@ export async function getPreview(uri: vscode.Uri, line: number | undefined): Pro
     const document = await vscode.workspace.openTextDocument(uri);
     const lineText = document.lineAt(line).text.trim();
     return lineText;
+}
+
+export async function getRichPreview(uri: vscode.Uri, line: number | undefined): Promise<RichPreview | undefined> {
+    if (line === null || line === undefined) {
+        return undefined;
+    }
+    const document = await vscode.workspace.openTextDocument(uri);
+    const lineText = document.lineAt(line).text;
+    return {
+        snippet_content: lineText,
+        total_lines_in_file: document.lineCount,
+        line: line+1
+    };
+}
+
+export async function isExternalUri(uri: vscode.Uri): Promise<boolean> {
+    if (uri.scheme === 'file') {
+        return await vscode.workspace.fs.stat(uri).then(() => false, () => true);
+    } else {
+        return true;
+    }
 }
  
 export function createVscodePosition(line: number, character: number): vscode.Position | undefined {

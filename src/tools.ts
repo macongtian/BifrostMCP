@@ -16,16 +16,9 @@ export const mcpTools = [
         inputSchema: {
             type: "object",
             properties: {
-                textDocument: {
-                    type: "object",
-                    description: "The document containing the symbol",
-                    properties: {
-                        uri: {
-                            type: "string",
-                            description: "URI of the document"
-                        }
-                    },
-                    required: ["uri"]
+                target_file: {
+                    type: "string",
+                    description: "The file containing the symbol",
                 },
                 position: {
                     type: "object",
@@ -43,48 +36,11 @@ export const mcpTools = [
                     required: ["line", "character"]
                 }
             },
-            required: ["textDocument", "position"]
+            required: ["target_file", "position"]
         }
     },
     {
-        name: "read_content",
-        description: "Reads document content by URI. Supports reading the entire document or a specific line range. URI supports file:// and jdt:// protocols.",
-        inputSchema: {
-            type: "object",
-            properties: {
-                textDocument: {
-                    type: "object",
-                    description: "The document to read",
-                    properties: {
-                        uri: {
-                            type: "string",
-                            description: "URI of the document"
-                        }
-                    },
-                    required: ["uri"]
-                },
-                range: {
-                    type: "object",
-                    description: "The range to read",
-                    properties: {
-                        startLine: {
-                            type: "number",
-                            description: "The starting line number (1-based)."
-                        },
-                        endLine: {
-                            type: "number",
-                            description: "The ending line number (inclusive, 1-based)."
-                        }
-                    },
-                    required: ['startLine', 'endLine']
-                }
-            },
-            required: ["textDocument", "range"]
-        },
-        
-    },
-    {
-        name: "get_workspace_symbols",
+        name: "get_symbol_definition",
         description: "Searches for symbols across the entire workspace. This is useful for finding symbols by name across all files. Especially useful for finding the file and positions of a symbol to use in other tools.",
         inputSchema: {
             type: "object",
@@ -134,15 +90,11 @@ export const toolsDescriptions = [
         description: "Find definition of a symbol"
     },
     {
-        name: "read_content",
-        description: "Reads the content of a file"
-    },
-    {
-        name: "get_workspace_symbols",
-        description: "Searches for symbols across the entire workspace"
+        name: "get_symbol_definition",
+        description: "Finds all definitions for a given symbol name across the workspace."
     },
     {
         name: "read_file",
-        description: "Reads the contents of a file. This is useful for getting the contents of a file to use in other tools."
+        description: "Reads a file from a relative/absolute path or a URI."
     }
 ];

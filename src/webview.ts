@@ -1,7 +1,7 @@
 import { toolsDescriptions } from './tools';
-const noUriTools = ['get_workspace_symbols'];
+const noUriTools = ['get_symbol_definition'];
 const positionTools = ['go_to_definition'];
-const rangeTools = ['read_content'];
+const rangeTools = [''];
 
 export const webviewHtml = `
     <!DOCTYPE html>
@@ -112,7 +112,7 @@ export const webviewHtml = `
                         <input type="number" id="startLine-${tool.name}" placeholder="Start line" style="width: 100px">
                         <input type="number" id="endLine-${tool.name}" placeholder="End line" style="width: 100px">
                     ` : ''}
-                    ${tool.name === 'get_workspace_symbols' ? `
+                    ${tool.name === 'get_symbol_definition' ? `
                         <input type="text" id="query-${tool.name}" placeholder="Search symbols..." style="width: 200px">
                     ` : ''}
                     ${tool.name === 'read_file' ? `
@@ -256,9 +256,8 @@ export const webviewHtml = `
                             params.end_line_one_indexed_inclusive = parseInt(endLine);
                         }
                     }
-                } else if (!${JSON.stringify(noUriTools)}.includes(toolName)) {
-                    const uri = document.getElementById('uri-' + toolName).value;
-                    params.textDocument = { uri };
+                } else if (toolName === 'go_to_definition') {
+                    params.target_file = document.getElementById('uri-' + toolName).value;
                 }
 
                 if (${JSON.stringify(positionTools)}.includes(toolName)) {
@@ -279,7 +278,7 @@ export const webviewHtml = `
                     };
                 }
 
-                if (toolName === 'get_workspace_symbols') {
+                if (toolName === 'get_symbol_definition') {
                     const query = document.getElementById('query-' + toolName)?.value;
                     params.query = query || '';
                 }
