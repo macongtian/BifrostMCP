@@ -22,7 +22,10 @@ export const runTool = async (name: string, args: any) => {
         case "get_symbol_definition":
             result = await findSymbol(args);
             break;
-        case "read_file":
+        case "get_type_definition":
+            result = await findSymbol(args);
+            break;
+        case "read_file_content":
             result = await handleReadFile(args);
             break;
         default:
@@ -55,6 +58,8 @@ async function handleGoToDefinition(args: any) {
     );
     return await asyncMap(commandResult, async (def: vscode.Location) => ({
         file_path: def.uri.toString(),
+        start_line: def.range?.start.line,
+        end_line: def.range?.end.line,
         preview: await getRichPreview(def.uri, def.range?.start.line)
     }));
 }
@@ -146,7 +151,11 @@ async function handleReadFile(args: any) {
 
 
 async function findSymbol(args: any) {
-    const query = args.query || '';
+    let query = args.query || args.name || '';
+    const containerName = args.container_name || '';
+    if (containerName) {
+        query = `${containerName}.${query}`;
+    }
     const symbols = await vscode.commands.executeCommand<vscode.SymbolInformation[]>(
         'vscode.executeWorkspaceSymbolProvider',
         query

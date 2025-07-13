@@ -26,11 +26,11 @@ export const mcpTools = [
                     properties: {
                         line: {
                             type: "number",
-                            description: "One-based line number"
+                            description: "Zero-based line number"
                         },
                         character: {
                             type: "number",
-                            description: "Zero-based character position"
+                            description: "Zero-based character position (column)"
                         }
                     },
                     required: ["line", "character"]
@@ -54,7 +54,25 @@ export const mcpTools = [
         }
     },
     {
-        name: "read_file",
+        name: "get_type_definition",
+        description: "Searches for type across the entire workspace. This is useful for finding type by name across all files. Especially useful for finding the file and positions of a type to use in other tools.",
+        inputSchema: {
+            type: "object",
+            properties: {
+                name: {
+                    type: "string",
+                    description: "The name of the type to find"
+                },
+                container_name: {
+                    type: "string",
+                    description: "The name of the container to find. If not provided, the tool will search the entire workspace."
+                }
+            },
+            required: ["name"]
+        }
+    },
+    {
+        name: "read_file_content",
         description: "Reads the contents of a file. This is useful for getting the contents of a file to use in other tools.",
         inputSchema: {
             type: "object",

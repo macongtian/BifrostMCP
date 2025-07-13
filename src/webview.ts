@@ -115,7 +115,7 @@ export const webviewHtml = `
                     ${tool.name === 'get_symbol_definition' ? `
                         <input type="text" id="query-${tool.name}" placeholder="Search symbols..." style="width: 200px">
                     ` : ''}
-                    ${tool.name === 'read_file' ? `
+                    ${tool.name === 'read_file_content' ? `
                         <div style="margin: 5px 0;">
                             <input type="checkbox" id="should_read_entire_file-${tool.name}" onchange="toggleReadFileRange('${tool.name}')">
                             <label for="should_read_entire_file-${tool.name}">读取整个文件</label>
@@ -224,7 +224,7 @@ export const webviewHtml = `
             tools = ${JSON.stringify(toolsDescriptions)};
             tools.forEach(tool => {
                 setupFileAutocomplete(tool.name);
-                if (tool.name === 'read_file') {
+                if (tool.name === 'read_file_content') {
                     toggleReadFileRange(tool.name);
                 }
             });
@@ -242,7 +242,7 @@ export const webviewHtml = `
             function executeTool(toolName) {
                 const params = {};
                 
-                if (toolName === 'read_file') {
+                if (toolName === 'read_file_content') {
                     params.target_file = document.getElementById('uri-' + toolName).value;
                     const shouldReadEntireFile = document.getElementById('should_read_entire_file-' + toolName).checked;
                     params.should_read_entire_file = shouldReadEntireFile;
