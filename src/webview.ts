@@ -1,5 +1,5 @@
 import { toolsDescriptions } from './tools';
-const noUriTools = ['get_symbol_definition'];
+const noUriTools = ['get_symbol_definition', 'get_type_definition'];
 const positionTools = ['go_to_definition'];
 const rangeTools = [''];
 
@@ -112,10 +112,10 @@ export const webviewHtml = `
                         <input type="number" id="startLine-${tool.name}" placeholder="Start line" style="width: 100px">
                         <input type="number" id="endLine-${tool.name}" placeholder="End line" style="width: 100px">
                     ` : ''}
-                    ${tool.name === 'get_symbol_definition' ? `
+                    ${tool.name === 'get_symbol_definition' || tool.name === 'get_type_definition' ? `
                         <input type="text" id="query-${tool.name}" placeholder="Search symbols..." style="width: 200px">
                     ` : ''}
-                    ${tool.name === 'read_file_content' ? `
+                    ${tool.name === 'read_outer_file' ? `
                         <div style="margin: 5px 0;">
                             <input type="checkbox" id="should_read_entire_file-${tool.name}" onchange="toggleReadFileRange('${tool.name}')">
                             <label for="should_read_entire_file-${tool.name}">读取整个文件</label>
@@ -224,7 +224,7 @@ export const webviewHtml = `
             tools = ${JSON.stringify(toolsDescriptions)};
             tools.forEach(tool => {
                 setupFileAutocomplete(tool.name);
-                if (tool.name === 'read_file_content') {
+                if (tool.name === 'read_outer_file') {
                     toggleReadFileRange(tool.name);
                 }
             });
@@ -242,7 +242,7 @@ export const webviewHtml = `
             function executeTool(toolName) {
                 const params = {};
                 
-                if (toolName === 'read_file_content') {
+                if (toolName === 'read_outer_file') {
                     params.target_file = document.getElementById('uri-' + toolName).value;
                     const shouldReadEntireFile = document.getElementById('should_read_entire_file-' + toolName).checked;
                     params.should_read_entire_file = shouldReadEntireFile;
@@ -278,7 +278,7 @@ export const webviewHtml = `
                     };
                 }
 
-                if (toolName === 'get_symbol_definition') {
+                if (toolName === 'get_symbol_definition' || toolName === 'get_type_definition' ) {
                     const query = document.getElementById('query-' + toolName)?.value;
                     params.query = query || '';
                 }

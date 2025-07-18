@@ -25,7 +25,7 @@ export const runTool = async (name: string, args: any) => {
         case "get_type_definition":
             result = await findSymbol(args);
             break;
-        case "read_file_content":
+        case "read_outer_file":
             result = await handleReadFile(args);
             break;
         default:
